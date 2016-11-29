@@ -22,19 +22,54 @@ npm run serve # serve an application
 ### Basic request
 
 ```js
-axios.post('http://yourcaptchadomain', {
-  text: 'Flipbox'
-}).then(response => {
-  // `response` data is an SVG
-}).catch(response => {
-  // Error response
-})
+var settings = {
+  'url': '{{ YOUR-DOMAIN-HERE }}',
+  'method': 'POST',
+  'headers': {
+    'x-request-identifier': '{{ A-VALID-GUID }}',
+  }
+}
+
+$.ajax(settings).done(function (response) {
+  console.log(response) // An SVG string, you may insert this response directly to your DOM
+
+  $('#f-cap').append(response)
+});
 ```
 
-### Known Issues
+Keep in mind, `A-VALID-GUID` should follows [RFC4122](https://www.ietf.org/rfc/rfc4122.txt).
+You can generate this GUID using [UUID Package](https://www.npmjs.com/package/uuid).
 
-- Cannot post `text` more than one word
+### Validating User Input
 
-### Future
+From that response, you may validate user input using this method:
 
-- Captcha validation
+```js
+var settings = {
+  'url': '{{ YOUR-DOMAIN-HERE }}/validate',
+  'method': 'POST',
+  'headers': {
+    'x-request-identifier': '{{ YOUR-PREVIOUS-GUID-HERE }}',
+    'x-challenge': 'southerners',
+    'cache-control': 'no-cache'
+  }
+}
+
+$.ajax(settings).done(function (response) {
+  // User input is valid
+  // Below is the response
+  // {
+  //   "valid": true,
+  //   "data": {
+  //     "text": "strict",
+  //     "ip": "{{ REQUESTED-IP }}",
+  //     "identifier": "{{ YOUR-PREVIOUS-GUID-HERE }}"
+  //   }
+  // }
+}).error(function (response) {
+  // User input is invalid
+});
+```
+
+> **NOTE** The server using cache to validate user input based on their captcha. The default captcha TTL is **90 seconds**.
+So if after 60 seconds user doesn't validate their input, the response may return an error response.
