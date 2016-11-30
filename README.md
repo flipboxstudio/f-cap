@@ -61,7 +61,7 @@ $.ajax(settings).done(function (response) {
   // {
   //   "valid": true,
   //   "data": {
-  //     "text": "strict",
+  //     "text": "southerners",
   //     "ip": "{{ REQUESTED-IP }}",
   //     "identifier": "{{ YOUR-PREVIOUS-GUID-HERE }}"
   //   }
@@ -72,4 +72,4 @@ $.ajax(settings).done(function (response) {
 ```
 
 > **NOTE** The server using cache to validate user input based on their captcha. The default captcha TTL is **90 seconds**.
-So if after 60 seconds user doesn't validate their input, the response may return an error response.
+So if after 90 seconds user doesn't validate their input, the response may return an error response.

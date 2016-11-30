@@ -1,19 +1,19 @@
+import cors from 'cors'
 import crypt from './lib'
 import words from './words'
-import multer from 'multer'
 import {sample} from 'lodash'
 import express from 'express'
 import randomWord from 'random-word'
 import svgCaptcha from 'svg-captcha'
-import bodyParser from 'body-parser'
 import NodeCache from 'node-cache'
 
 const app = express()
-const upload = multer()
 const appCache = new NodeCache({stdTTL: 90})
+const corsOptions = {
+  maxAge: (24 * 60 * 60) * 7
+}
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(cors(corsOptions))
 
 app.post('/', function (req, res) {
   let text = sample(words)
@@ -27,12 +27,16 @@ app.post('/', function (req, res) {
     })
   }
 
-  console.log(identifier)
-
   let hash = crypt.translate(ip, identifier)
 
   appCache.set(hash, {text, ip, identifier}, (error, success) => {
     if (!error && success) {
+      if (req.headers['accept'] === 'application/json') {
+        return res.set('X-Request-Hash', hash)
+          .status(200)
+          .json({captcha})
+      }
+
       return res.set('Content-Type', 'image/svg+xml')
         .set('X-Request-Hash', hash)
         .status(200)
