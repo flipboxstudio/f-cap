@@ -65,13 +65,13 @@ app.post('/validate', function (req, res) {
       appCache.del(identifier)
 
       return (value === undefined) ?
-          res.status(400).json({valid: false, message: 'Captcha challenge has been expired'}) :
+          res.status(426).json({valid: false, message: 'Captcha challenge has been expired'}) :
           (value.text.toLowerCase() === challenge.toLowerCase().trim())
             ? res.json({valid: true, data: value})
             : res.status(400).json({valid: false})
     }
 
-    return res.status(400).json({valid: false, error})
+    return res.status(500).json({valid: false, error})
   })
 })
 
