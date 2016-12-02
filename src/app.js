@@ -1,4 +1,7 @@
+import fs from 'fs'
 import cors from 'cors'
+import path from 'path'
+import https from 'https'
 import crypt from './lib'
 import words from './words'
 import {sample} from 'lodash'
@@ -13,9 +16,17 @@ const corsOptions = {
   maxAge: (24 * 60 * 60) * 7
 }
 
+require('dotenv').config({path: path.join(__dirname, '/../', '.env')})
+
 app.use(cors(corsOptions))
 
-app.post('/', function (req, res) {
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'Welcome peeps!'
+  })
+})
+
+app.post('/', (req, res) => {
   let text = sample(words)
   let captcha = svgCaptcha(text)
   let identifier = req.headers['x-request-identifier'] || ''
@@ -47,7 +58,7 @@ app.post('/', function (req, res) {
   })
 })
 
-app.post('/validate', function (req, res) {
+app.post('/validate', (req, res) => {
   let challenge = req.headers['x-challenge'] || ''
   let identifier = req.headers['x-request-identifier'] || ''
   let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
@@ -60,7 +71,7 @@ app.post('/validate', function (req, res) {
 
   identifier = crypt.translate(ip, identifier)
 
-  appCache.get(identifier, function (error, value) {
+  appCache.get(identifier, (error, value) => {
     if (!error) {
       appCache.del(identifier)
 
@@ -68,14 +79,14 @@ app.post('/validate', function (req, res) {
           res.status(426).json({valid: false, message: 'Captcha challenge has been expired'}) :
           (value.text.toLowerCase() === challenge.toLowerCase().trim())
             ? res.json({valid: true, data: value})
-            : res.status(400).json({valid: false})
+            : res.status(400).json({valid: false, data: value})
     }
 
     return res.status(500).json({valid: false, error})
   })
 })
 
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
   console.error(err)
 
   res.status(500).json({error: err})
@@ -86,3 +97,21 @@ const port = parseInt(process.env.PORT) || 3000
 app.listen(port, function () {
   console.log('Captcha listening on port ' + port + '!')
 })
+
+const key = path.resolve(process.env.SSL_KEY)
+const cert = path.resolve(process.env.SSL_CERT)
+
+try {
+  const options = {
+    key: fs.readFileSync(key),
+    cert: fs.readFileSync(cert)
+  }
+
+  const sslPort = parseInt(process.env.SSL_PORT) || (port + 443)
+
+  https.createServer(options, app).listen(sslPort, fn => {
+    console.log('Captcha with SSL listening on port ' + sslPort + '!')
+  })
+} catch (e) {
+  console.log(e)
+}
