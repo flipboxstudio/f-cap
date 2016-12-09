@@ -1,6 +1,12 @@
 // Imported from Wikipedia at 2016-29-11
 // https://en.wikipedia.org/wiki/Abraham_Lincoln
 export default [
+  // Flipbox Team :D
+  // "alfa", "aqid", "arsyadi", "deden",
+  // "suryo", "tommi", "firli", "erwin",
+  // "eriza", "faizal", "bhakti", "surya",
+  // "fikar", "fika", "wulan", "kers", "olla",
+
   "abandoned", "abilities", "ability",
   "abolish", "abolished", "abolishing",
   "abolition", "abolitionism",

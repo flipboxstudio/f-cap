@@ -81,6 +81,7 @@ $.ajax(settings).done(function (response) {
 });
 ```
 
-> **NOTE** The server using cache to validate user input based on their captcha. The default captcha TTL is **90 seconds**.
-So if after 90 seconds user doesn't validate their input, the response may return an error response.
+> **NOTE** The server using cache to validate user input based on their captcha. The default captcha TTL is **120 seconds**.
+So if after 120 seconds user doesn't validate their input, the response may return an error response.
 When this happens server will return [426 status code](https://httpstatuses.com/426).
+You can configure this via `CACHE_TTL` environment variable.

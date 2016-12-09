@@ -10,13 +10,13 @@ import randomWord from 'random-word'
 import svgCaptcha from 'svg-captcha'
 import NodeCache from 'node-cache'
 
+require('dotenv').config({path: path.join(__dirname, '/../', '.env')})
+
 const app = express()
-const appCache = new NodeCache({stdTTL: 90})
+const appCache = new NodeCache({stdTTL: process.env.CACHE_TTL || 120})
 const corsOptions = {
   maxAge: (24 * 60 * 60) * 7
 }
-
-require('dotenv').config({path: path.join(__dirname, '/../', '.env')})
 
 app.use(cors(corsOptions))
 
